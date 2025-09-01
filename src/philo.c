@@ -6,7 +6,7 @@
 /*   By: panne-ro <panne-ro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 10:14:34 by panne-ro          #+#    #+#             */
-/*   Updated: 2025/09/01 12:20:45 by panne-ro         ###   ########.fr       */
+/*   Updated: 2025/09/01 18:30:38 by panne-ro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,11 @@ t_philo	*init_philo(t_philo *philos, int nbr_philo, char **argv)
 	while (i < nbr_philo)
 	{
 		philos[i].info = malloc(sizeof(t_info));
+		philos[i].nbr_philo = nbr_philo;
 		philos[i].id = i + 1;
+		pthread_mutex_init(&philos[i].fork, NULL);
+		philos[i].info->philo = philos;
+		philos[i].last_meal = get_time_in_ms();
 		i++;
 	}
 	philos = take_arg(philos, argv, nbr_philo);
@@ -50,7 +54,7 @@ void	pthread_use(int nbr_philo, pthread_t *thread, t_philo *philos)
 	while (i < nbr_philo)
 	{
 		pthread_create(&thread[i], NULL, routine, &philos[i]);
-		usleep(1);
+		ft_usleep(1);
 		i++;
 	}
 	i = 0;

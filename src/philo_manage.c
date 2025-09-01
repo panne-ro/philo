@@ -6,7 +6,7 @@
 /*   By: panne-ro <panne-ro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 12:11:49 by panne-ro          #+#    #+#             */
-/*   Updated: 2025/09/01 12:17:47 by panne-ro         ###   ########.fr       */
+/*   Updated: 2025/09/01 18:28:23 by panne-ro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,14 +15,60 @@
 void	*routine(void *info)
 {
 	t_philo	*philo;
+	long long now;
 
 	philo = (t_philo *)info;
-	philo_sleep(philo);
+	while (1)
+	{
+		now = get_time_in_ms();
+		if(now - philo->last_meal > philo->info->time_to_die)
+		{
+			printf("%d died\n", philo->id);
+			break ;
+		}
+		printf("%d is thinking\n", philo->id);
+		take_forks(philo);
+		printf("%d is eating\n", philo->id);
+		philo->last_meal = get_time_in_ms();
+		ft_usleep(philo->info->time_to_eat);
+		put_forks(philo);
+		philo_sleep(philo);
+	}
 	return (NULL);
 }
 
 void	philo_sleep(t_philo *philo)
 {
-	usleep(philo->info->time_to_sleep);
 	printf("%d is sleeping\n", philo->id);
+	ft_usleep(philo->info->time_to_sleep);
+}
+
+void	take_forks(t_philo *philo)
+{
+	int		right;
+
+	right = philo->id % philo->nbr_philo;
+	if (philo->id % 2 == 0)
+	{
+		pthread_mutex_lock(&philo->fork);
+		printf("%d has taken a fork\n", philo->id);
+		pthread_mutex_lock(&philo->info->philo[right].fork);
+		printf("%d has taken a fork\n", philo->id);
+	}
+	else
+	{
+		pthread_mutex_lock(&philo->info->philo[right].fork);
+		printf("%d has taken a fork\n", philo->id);
+		pthread_mutex_lock(&philo->fork);
+		printf("%d has taken a fork\n", philo->id);
+	}
+}
+
+void	put_forks(t_philo *philo)
+{
+	int	right;
+
+	right = philo->id % philo->nbr_philo;
+	pthread_mutex_unlock(&philo->fork);
+	pthread_mutex_unlock(&philo->info->philo[right].fork);
 }
