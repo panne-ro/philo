@@ -6,7 +6,7 @@
 /*   By: panne-ro <panne-ro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 12:11:49 by panne-ro          #+#    #+#             */
-/*   Updated: 2025/09/01 18:28:23 by panne-ro         ###   ########.fr       */
+/*   Updated: 2025/09/08 18:31:30 by panne-ro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,23 +14,27 @@
 
 void	*routine(void *info)
 {
-	t_philo	*philo;
-	long long now;
+	t_philo			*philo;
+	long long		now;
 
 	philo = (t_philo *)info;
-	while (1)
+	while (philo->info->stop == 0)
 	{
 		now = get_time_in_ms();
 		if(now - philo->last_meal > philo->info->time_to_die)
 		{
 			printf("%d died\n", philo->id);
+			philo->info->stop = 1;
 			break ;
 		}
-		printf("%d is thinking\n", philo->id);
-		take_forks(philo);
-		printf("%d is eating\n", philo->id);
-		philo->last_meal = get_time_in_ms();
-		ft_usleep(philo->info->time_to_eat);
+		if (philo->info->max_eat != -1 && philo->meals_eaten >= philo->info->max_eat)
+		{
+			printf("%d has eaten %d times\n", philo->id, philo->meals_eaten);
+			philo->info->stop = 1;
+			break ;
+		}
+		printf("%d is thinking\n",philo->id);
+		philo_eat(philo);
 		put_forks(philo);
 		philo_sleep(philo);
 	}
@@ -40,7 +44,7 @@ void	*routine(void *info)
 void	philo_sleep(t_philo *philo)
 {
 	printf("%d is sleeping\n", philo->id);
-	ft_usleep(philo->info->time_to_sleep);
+	ft_usleep(philo->info->time_to_sleep, philo);
 }
 
 void	take_forks(t_philo *philo)
@@ -71,4 +75,13 @@ void	put_forks(t_philo *philo)
 	right = philo->id % philo->nbr_philo;
 	pthread_mutex_unlock(&philo->fork);
 	pthread_mutex_unlock(&philo->info->philo[right].fork);
+}
+
+void	philo_eat(t_philo *philo)
+{
+	take_forks(philo);
+	printf("%d is eating\n", philo->id);
+	philo->meals_eaten++;
+	philo->last_meal = get_time_in_ms();
+	ft_usleep(philo->info->time_to_eat, philo);
 }

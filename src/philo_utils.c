@@ -6,7 +6,7 @@
 /*   By: panne-ro <panne-ro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/09/01 09:16:18 by panne-ro          #+#    #+#             */
-/*   Updated: 2025/09/01 18:29:07 by panne-ro         ###   ########.fr       */
+/*   Updated: 2025/09/08 18:34:17 by panne-ro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ int	ft_atoi(const char *str)
 	return (nbr * sign);
 }
 
-int	ft_usleep(long long time)
+int	ft_usleep(long long time, t_philo *philo)
 {
 	struct timeval	start_tv;
 	struct timeval	now_tv;
