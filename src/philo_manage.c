@@ -6,7 +6,7 @@
 /*   By: panne-ro <panne-ro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 12:11:49 by panne-ro          #+#    #+#             */
-/*   Updated: 2025/09/14 22:52:08 by panne-ro         ###   ########.fr       */
+/*   Updated: 2025/09/15 00:25:53 by panne-ro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,28 +14,35 @@
 
 void	*routine(void *info)
 {
-	t_philo			*philo;
-	long long		now;
+	t_philo				*philo;
 
 	philo = (t_philo *)info;
-	while (philo->info->stop == 0)
+	while (1)
 	{
-		now = get_time_in_ms();
-		if(now - philo->last_meal > philo->info->time_to_die)
+		pthread_mutex_lock(&philo->info->mutex_stop);
+		if (philo->info->stop == 1)
 		{
-			printf("%d died\n", philo->id);
-			philo->info->stop = 1;
+			pthread_mutex_unlock(&philo->info->mutex_stop);
 			break ;
 		}
-		if (philo->info->max_eat != -1 && philo->meals_eaten >= philo->info->max_eat)
-		{
-			printf("%d has eaten %d times\n", philo->id, philo->meals_eaten);
-			philo->info->stop = 1;
-			break ;
-		}
+		pthread_mutex_unlock(&philo->info->mutex_stop);
 		printf("%d is thinking\n",philo->id);
 		philo_eat(philo);
+		pthread_mutex_lock(&philo->info->mutex_stop);
+		if (philo->info->stop == 1)
+		{
+			pthread_mutex_unlock(&philo->info->mutex_stop);
+			break ;
+		}
+		pthread_mutex_unlock(&philo->info->mutex_stop);
 		put_forks(philo);
+		pthread_mutex_lock(&philo->info->mutex_stop);
+		if (philo->info->stop == 1)
+		{
+			pthread_mutex_unlock(&philo->info->mutex_stop);
+			break ;
+		}
+		pthread_mutex_unlock(&philo->info->mutex_stop);
 		philo_sleep(philo);
 	}
 	return (NULL);
@@ -80,8 +87,10 @@ void	put_forks(t_philo *philo)
 void	philo_eat(t_philo *philo)
 {
 	take_forks(philo);
+	pthread_mutex_lock(&philo->meals);
+	philo->last_meal = get_time_in_ms();
 	printf("%d is eating\n", philo->id);
 	philo->meals_eaten++;
-	philo->last_meal = get_time_in_ms();
+	pthread_mutex_unlock(&philo->meals);
 	ft_usleep(philo->info->time_to_eat);
 }

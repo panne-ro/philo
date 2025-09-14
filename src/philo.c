@@ -6,7 +6,7 @@
 /*   By: panne-ro <panne-ro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 10:14:34 by panne-ro          #+#    #+#             */
-/*   Updated: 2025/09/14 22:52:00 by panne-ro         ###   ########.fr       */
+/*   Updated: 2025/09/15 00:32:14 by panne-ro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,6 +42,7 @@ t_philo	*init_philo(t_philo *philos, int nbr_philo, char **argv, int argc)
 		philos[i].nbr_philo = nbr_philo;
 		philos[i].id = i + 1;
 		pthread_mutex_init(&philos[i].fork, NULL);
+		pthread_mutex_init(&philos->meals, NULL);
 		philos[i].info->philo = philos;
 		philos[i].info->stop = 0;
 		philos[i].last_meal = get_time_in_ms();
@@ -51,11 +52,36 @@ t_philo	*init_philo(t_philo *philos, int nbr_philo, char **argv, int argc)
 	return (philos);
 }
 
-void	pthread_use(int nbr_philo, pthread_t *thread, t_philo *philos)
+void *monitor(void *philos)
+{
+	t_philo *phils;
+	int i;
+	
+	phils = (t_philo *)philos;
+	while (1)
+	{
+		i = 0;
+		while (i < phils->nbr_philo)
+		{
+			if (philo_verif(&phils[i]) != 0)
+			{
+				pthread_mutex_lock(&phils->info->mutex_stop);
+				phils->info->stop = 1;
+				pthread_mutex_unlock(&phils->info->mutex_stop);
+				return (NULL);
+			}
+			i++;
+		}
+	}
+	return (NULL);
+}
+
+void	pthread_use(int nbr_philo, pthread_t *thread, t_philo *philos, pthread_t *monitor_thread)
 {
 	int	i;
-
+	
 	i = 0;
+	pthread_create(monitor_thread, NULL, monitor, philos);
 	while (i < nbr_philo)
 	{
 		pthread_create(&thread[i], NULL, routine, &philos[i]);
@@ -68,23 +94,13 @@ void	pthread_use(int nbr_philo, pthread_t *thread, t_philo *philos)
 		pthread_join(thread[i], NULL);
 		i++;
 	}
-	if (philos->info->stop == 1)
-	{
-		i = 0;
-		if(philos->meals_eaten >= philos->info->max_eat && philos->info->max_eat != -1)
-			printf("All philosophers have eaten %d times\n", philos->info->max_eat);
-		while (i < nbr_philo)
-		{
-			pthread_mutex_destroy(&philos[i].fork);
-			free(philos[i].info);
-			i++;
-		}
-	}
+	pthread_join(*monitor_thread, NULL);
 }
 
 int	main(int argc, char **argv)
 {
 	pthread_t	*thread;
+	pthread_t	*monitor_thread;
 	t_philo		*philos;
 	int			nbr_philo;
 
@@ -100,10 +116,12 @@ int	main(int argc, char **argv)
 	}
 	nbr_philo = ft_atoi(argv[1]);
 	thread = malloc(sizeof(pthread_t) * nbr_philo);
+	monitor_thread = malloc(sizeof(pthread_t));
 	philos = malloc(sizeof(t_philo) * nbr_philo);
 	philos = init_philo(philos, nbr_philo, argv, argc);
-	pthread_use(nbr_philo, thread, philos);
+	pthread_use(nbr_philo, thread, philos, monitor_thread);
 	free(philos);
 	free(thread);
+	free(monitor_thread);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: panne-ro <panne-ro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 10:13:32 by panne-ro          #+#    #+#             */
-/*   Updated: 2025/09/14 22:51:53 by panne-ro         ###   ########.fr       */
+/*   Updated: 2025/09/15 00:04:27 by panne-ro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@ typedef struct s_philo
 	long long int	last_meal;
 	int				meals_eaten;
 	pthread_mutex_t	fork;
+	pthread_mutex_t	meals;
 }	t_philo;
 
 typedef struct s_info
@@ -36,6 +37,7 @@ typedef struct s_info
 	int		time_to_die;
 	int		max_eat;
 	int		stop;
+	pthread_mutex_t	mutex_stop;
 	t_philo	*philo;
 }	t_info;
 
@@ -49,12 +51,13 @@ void		philo_eat(t_philo *philo);
 //philo.c
 t_philo		*take_arg(t_philo *philo, char **argv, int nbr_philo, int argc);
 t_philo		*init_philo(t_philo *philos, int nbr_philo, char **argv, int argc);
-void		pthread_use(int nbr_philo, pthread_t *thread, t_philo *philos);
+void	pthread_use(int nbr_philo, pthread_t *thread, t_philo *philos, pthread_t *monitor_thread);
 int			main(int argc, char **argv);
 
 //philo_utils.c
 int			ft_atoi(const char *str);
 int			ft_usleep(long long time);
 long long	get_time_in_ms(void);
+int			philo_verif(t_philo *philo);
 
 #endif
