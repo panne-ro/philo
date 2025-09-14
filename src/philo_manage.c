@@ -6,7 +6,7 @@
 /*   By: panne-ro <panne-ro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 12:11:49 by panne-ro          #+#    #+#             */
-/*   Updated: 2025/09/08 18:31:30 by panne-ro         ###   ########.fr       */
+/*   Updated: 2025/09/14 22:52:08 by panne-ro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ void	*routine(void *info)
 void	philo_sleep(t_philo *philo)
 {
 	printf("%d is sleeping\n", philo->id);
-	ft_usleep(philo->info->time_to_sleep, philo);
+	ft_usleep(philo->info->time_to_sleep);
 }
 
 void	take_forks(t_philo *philo)
@@ -83,5 +83,5 @@ void	philo_eat(t_philo *philo)
 	printf("%d is eating\n", philo->id);
 	philo->meals_eaten++;
 	philo->last_meal = get_time_in_ms();
-	ft_usleep(philo->info->time_to_eat, philo);
+	ft_usleep(philo->info->time_to_eat);
 }

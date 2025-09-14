@@ -6,7 +6,7 @@
 /*   By: panne-ro <panne-ro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 10:14:34 by panne-ro          #+#    #+#             */
-/*   Updated: 2025/09/08 18:32:02 by panne-ro         ###   ########.fr       */
+/*   Updated: 2025/09/14 22:52:00 by panne-ro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ void	pthread_use(int nbr_philo, pthread_t *thread, t_philo *philos)
 	while (i < nbr_philo)
 	{
 		pthread_create(&thread[i], NULL, routine, &philos[i]);
-		ft_usleep(1, philos);
+		ft_usleep(1);
 		i++;
 	}
 	i = 0;

@@ -6,7 +6,7 @@
 /*   By: panne-ro <panne-ro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/08/27 10:13:32 by panne-ro          #+#    #+#             */
-/*   Updated: 2025/09/08 18:31:22 by panne-ro         ###   ########.fr       */
+/*   Updated: 2025/09/14 22:51:53 by panne-ro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,7 @@ int			main(int argc, char **argv);
 
 //philo_utils.c
 int			ft_atoi(const char *str);
-int			ft_usleep(long long time, t_philo *philo);
+int			ft_usleep(long long time);
 long long	get_time_in_ms(void);
 
 #endif
