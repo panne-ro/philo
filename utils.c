@@ -6,7 +6,7 @@
 /*   By: panne-ro <panne-ro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/19 16:22:06 by panne-ro          #+#    #+#             */
-/*   Updated: 2025/12/03 10:53:27 by panne-ro         ###   ########.fr       */
+/*   Updated: 2025/12/04 19:07:38 by panne-ro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,4 +45,17 @@ int	ft_atoi(const char *nptr)
 	if (minus % 2 == 1)
 		nbr = -nbr;
 	return (nbr);
+}
+
+long long	get_current_time(void)
+{
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
+	return (tv.tv_sec * 1000 + tv.tv_usec / 1000);
+}
+
+long long	timestamp(t_table *table)
+{
+	return (get_current_time() - table->start_time);
 }

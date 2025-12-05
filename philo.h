@@ -6,17 +6,24 @@
 /*   By: panne-ro <panne-ro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/19 15:43:42 by panne-ro          #+#    #+#             */
-/*   Updated: 2025/12/03 19:33:42 by panne-ro         ###   ########.fr       */
+/*   Updated: 2025/12/05 12:08:16 by panne-ro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef	PHILO_H
+#ifndef PHILO_H
 # define PHILO_H
+
+# define FORK "has taken a fork\n"
+# define EAT "is eating\n"
+# define SLEEP "is sleeping\n"
+# define THINK "is thinking\n"
+# define DEAD "died\n"
 
 # include <stdio.h>
 # include <unistd.h>
 # include <stdlib.h>
 # include <pthread.h>
+# include <sys/time.h>
 
 typedef struct s_table	t_table;
 typedef struct s_philo	t_philo;
@@ -26,8 +33,7 @@ typedef struct s_philo
 	int				id;
 	long long		last_meal;
 	int				meals_eaten;
-	pthread_mutex_t	right_fork;
-	pthread_mutex_t	left_fork;
+	int				index;
 	pthread_t		thread;
 	t_table			*table;
 }	t_philo;
@@ -40,19 +46,35 @@ typedef struct s_table
 	int					time_to_sleep;
 	int					must_eat;
 	int					is_dead;
+	int					right_fork;
+	int					left_fork;
+	long long			start_time;
 	pthread_mutex_t		dead_mutex;
+	pthread_mutex_t		eaten_mutex;
+	pthread_mutex_t		print_mutex;
+	pthread_mutex_t		*fork;
+	struct timeval		tv;
 	t_philo				*philo;
 }	t_table;
 
-
 //parse.c
-int	parse_arg(int argc, char **argv);
+int			parse_arg(int argc, char **argv);
 
 //philo_manage.c
-t_table	*init_table(t_table *table, int argc, char **argv);
+t_table		*init_table(t_table *table, int argc, char **argv);
+void		init_philo(t_table *table);
+int			print_msg(t_philo *philo, char *msg);
+
+//routine.c
+void		*life(void *arg);
+int		sleeping(t_philo *philo);
+int		eating(t_philo *philo);
+int			dead(t_philo *philo);
 
 //utils.c
-int	ft_isdigit(char c);
-int	ft_atoi(const char *nptr);
+int			ft_isdigit(char c);
+int			ft_atoi(const char *nptr);
+long long	get_current_time(void);
+long long	timestamp(t_table *table);
 
 #endif
