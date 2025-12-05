@@ -1,6 +1,6 @@
 NAME = Philo
 CC = cc
-FLAGS = -Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror -fsanitize=address
 SRC =	parse.c \
 		philo_manage.c \
 		routine.c \

@@ -6,7 +6,7 @@
 /*   By: panne-ro <panne-ro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/12/03 19:35:02 by panne-ro          #+#    #+#             */
-/*   Updated: 2025/12/05 12:09:55 by panne-ro         ###   ########.fr       */
+/*   Updated: 2025/12/05 15:42:50 by panne-ro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,20 +17,19 @@ void	*life(void *arg)
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
+	
 	while (1)
 	{
-		if (eating(philo) == 1)
+		pthread_mutex_lock(&philo->table->dead_mutex);
+		if (philo->is_dead == 1)
+		{
+			pthread_mutex_unlock(&philo->table->dead_mutex);
 			break ;
-		if (dead(philo) == 1)
-			break ;
-		if (sleeping(philo) == 1)
-			break ;
-		if (dead(philo) == 1)
-			break ;
-		if (print_msg(philo, THINK) == 1)
-			break ;
-		if (dead(philo) == 1)
-			break ;	
+		}
+		pthread_mutex_unlock(&philo->table->dead_mutex);
+		eating(philo);
+		sleeping(philo);
+		print_msg(philo, THINK);
 	}
 	return (NULL);
 }
@@ -88,40 +87,31 @@ int	eating(t_philo *philo)
 		pthread_mutex_unlock(&philo->table->fork[left_fork]);
 		return (1);
 	}
+	philo->last_meal = get_current_time();
 	usleep(philo->table->time_to_eat * 1000);
 	pthread_mutex_lock(&philo->table->eaten_mutex);
 	philo->meals_eaten++;
 	pthread_mutex_unlock(&philo->table->eaten_mutex);
-	philo->last_meal = get_current_time();
 	pthread_mutex_unlock(&philo->table->fork[right_fork]);
 	pthread_mutex_unlock(&philo->table->fork[left_fork]);
 	return (0);
 }
 
-int	dead(t_philo *philo)
+int	dead(t_table *table)
 {
-	pthread_mutex_lock(&philo->table->eaten_mutex);
-	if ((get_current_time() - philo->last_meal > philo->table->time_to_die))
+	int i;
+	
+	i = 0;
+	while (i < table->numbers_of_philo)
 	{
-		pthread_mutex_lock(&philo->table->dead_mutex);
-		philo->table->is_dead = 1;
-		pthread_mutex_unlock(&philo->table->dead_mutex);
-		pthread_mutex_lock(&philo->table->print_mutex);
-		printf("%lld %i %s", timestamp(philo->table), philo->id, DEAD);
-		pthread_mutex_unlock(&philo->table->print_mutex);
-		pthread_mutex_unlock(&philo->table->eaten_mutex);
-		return (1);
+		pthread_mutex_lock(&table->eaten_mutex);
+		if((get_current_time() - table->philo[i].last_meal) > table->time_to_die)
+		{
+			pthread_mutex_unlock(&table->eaten_mutex);
+			return (1);
+		}
+		pthread_mutex_unlock(&table->eaten_mutex);
+		i++;
 	}
-	else if (philo->meals_eaten >= philo->table->must_eat && philo->table->must_eat != -1)
-	{
-		pthread_mutex_lock(&philo->table->dead_mutex);
-		philo->table->is_dead = 1;
-		pthread_mutex_unlock(&philo->table->dead_mutex);
-		pthread_mutex_lock(&philo->table->print_mutex);
-		pthread_mutex_unlock(&philo->table->print_mutex);
-		pthread_mutex_unlock(&philo->table->eaten_mutex);
-		return (1);
-	}	
-	pthread_mutex_unlock(&philo->table->eaten_mutex);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: panne-ro <panne-ro@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/19 15:43:42 by panne-ro          #+#    #+#             */
-/*   Updated: 2025/12/05 12:08:16 by panne-ro         ###   ########.fr       */
+/*   Updated: 2025/12/05 15:40:01 by panne-ro         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@ typedef struct s_philo
 	long long		last_meal;
 	int				meals_eaten;
 	int				index;
+	int				is_dead;
 	pthread_t		thread;
 	t_table			*table;
 }	t_philo;
@@ -45,15 +46,11 @@ typedef struct s_table
 	int					time_to_eat;
 	int					time_to_sleep;
 	int					must_eat;
-	int					is_dead;
-	int					right_fork;
-	int					left_fork;
 	long long			start_time;
 	pthread_mutex_t		dead_mutex;
-	pthread_mutex_t		eaten_mutex;
+	pthread_mutex_t		eaten_mutex;		
 	pthread_mutex_t		print_mutex;
 	pthread_mutex_t		*fork;
-	struct timeval		tv;
 	t_philo				*philo;
 }	t_table;
 
@@ -64,12 +61,13 @@ int			parse_arg(int argc, char **argv);
 t_table		*init_table(t_table *table, int argc, char **argv);
 void		init_philo(t_table *table);
 int			print_msg(t_philo *philo, char *msg);
+int	all_eat(t_table *table);
 
 //routine.c
 void		*life(void *arg);
 int		sleeping(t_philo *philo);
 int		eating(t_philo *philo);
-int			dead(t_philo *philo);
+int			dead(t_table *table);
 
 //utils.c
 int			ft_isdigit(char c);
